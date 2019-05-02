@@ -6,6 +6,7 @@ import (
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
 	"os"
+	"time"
 )
 
 func init() {
@@ -26,7 +27,8 @@ func init() {
 		password = config.ORDER_MYSQL_PASSWORD_DEFAULT
 	}
 
-	logs.Info("准备初始化数据库表")
+	logs.Info("等待10秒后准备初始化数据库表")
+	time.Sleep(time.Second * 10)
 	ds := user + ":" + password + "@tcp(" + host + ")/" + dbName + "?charset=utf8mb4&loc=Local"
 	logs.Info(ds)
 	// set default database
