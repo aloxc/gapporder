@@ -2,10 +2,11 @@ package module
 
 import (
 	"github.com/aloxc/gapporder/config"
-	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/smallnest/rpcx/log"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -26,15 +27,23 @@ func init() {
 	if password == "" {
 		password = config.ORDER_MYSQL_PASSWORD_DEFAULT
 	}
-
-	logs.Info("等待10秒后准备初始化数据库表")
-	time.Sleep(time.Second * 10)
+	second := os.Getenv(config.WAIT_MYSQL_SETUP_SECOND)
+	isecond, err := strconv.Atoi(second)
+	if err != nil {
+		log.Info("等待mysql初始化异常", err)
+		os.Exit(0)
+	}
+	log.Infof("等待[%s]秒后准备初始化数据库表", isecond)
+	time.Sleep(time.Second * time.Duration(isecond))
 	ds := user + ":" + password + "@tcp(" + host + ")/" + dbName + "?charset=utf8mb4&loc=Local"
-	logs.Info(ds)
+	log.Info(ds)
 	// set default database
 	orm.RegisterDataBase("default", "mysql", ds, 30)
 	// register model
 	orm.RegisterModel(new(Order))
 	// create table
-	orm.RunSyncdb("default", true, true)
+	err = orm.RunSyncdb("default", true, true)
+	if err != nil {
+		log.Info("启动创建数据连接异常", err)
+	}
 }
