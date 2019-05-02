@@ -1,3 +1,3 @@
 FROM scratch
-VOLUME /gapp/gapporder/gapporder /
+VOLUME gapporder /
 CMD ["/gapporder"]
